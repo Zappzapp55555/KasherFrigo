@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kasher Frigo — Recettes avec vos ingrédients</title>
+<meta name="description" content="Trouvez des recettes 100% kasher à faire avec les aliments qu'il vous reste.">
+<meta name="theme-color" content="#2f6f4f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <button id="lang-toggle" type="button" title="Français / עברית" aria-label="Changer de langue">🇮🇱</button>
+  <h1 id="app-logo" title="Rafraîchir la page">🍽️ Kasher Frigo</h1>
+  <p data-i18n="headerSubtitle">Des recettes 100% kasher avec ce qu'il vous reste sous la main</p>
+</header>
+
+<main>
+
+  <!-- ÉTAPE 1 : INGRÉDIENTS -->
+  <section class="card" id="section-ingredients">
+    <h2 data-i18n="sectionIngredientsTitle">1. Vos ingrédients</h2>
+
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="checklist" type="button" data-i18n="tabChecklist">☑️ Cocher</button>
+      <button class="tab-btn" data-tab="textlist" type="button" data-i18n="tabTextlist">📝 Liste texte</button>
+      <button class="tab-btn" data-tab="photo" type="button" data-i18n="tabPhoto">📷 Photo</button>
+    </div>
+
+    <div class="tab-panel" id="panel-checklist">
+      <input type="search" id="ingredient-search" data-i18n-placeholder="searchPlaceholder" placeholder="Rechercher un ingrédient... ou le nom d'une recette (couscous, pkaila...)">
+      <div id="recipe-search-results"></div>
+      <div id="ingredient-groups"></div>
+    </div>
+
+    <div class="tab-panel hidden" id="panel-textlist">
+      <p class="hint" data-i18n="textlistHint">Collez ou tapez votre liste : un ingrédient par ligne, ou séparés par des virgules.</p>
+      <textarea id="text-list-input" rows="4" data-i18n-placeholder="textlistPlaceholder" placeholder="ex : poulet, oignons, riz, tomates, citron..."></textarea>
+      <button id="parse-text-btn" class="btn" type="button" data-i18n="addToIngredientsBtn">Ajouter à mes ingrédients</button>
+      <div id="text-parse-result" class="parse-result"></div>
+    </div>
+
+    <div class="tab-panel hidden" id="panel-photo">
+      <p class="hint" data-i18n="photoHint">Prenez une photo ou choisissez une image de vos aliments. La reconnaissance se fait directement sur votre téléphone, aucune photo n'est envoyée sur internet.</p>
+      <label class="btn photo-btn" for="photo-input" data-i18n="choosePhotoBtn">📷 Choisir une photo</label>
+      <input type="file" accept="image/*" capture="environment" id="photo-input" hidden>
+      <div id="photo-preview"></div>
+      <div id="photo-status" class="hint"></div>
+      <div id="photo-result" class="parse-result"></div>
+    </div>
+
+    <p class="hint" data-i18n="basicsHint">💡 Sel, poivre, huile d'olive, oignon, ail, épices sèches courantes (cumin, paprika, curcuma, cannelle, thym, origan) et condiments de base (moutarde, vinaigre, sucre, miel) sont supposés toujours disponibles : inutile de les cocher, ils ne comptent jamais comme ingrédients manquants.</p>
+
+    <div id="kashrut-warning" class="kashrut-warning hidden"></div>
+
+    <div class="pantry-summary">
+      <span id="pantry-count">0 ingrédient sélectionné</span>
+      <button id="clear-pantry" class="btn-link" type="button" data-i18n="clearAllBtn">Tout effacer</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 2 : TYPE DE PLAT (bessari / halavi / parve) -->
+  <section class="card" id="section-type">
+    <h2 data-i18n="sectionTypeTitle">2. Quel type de plat ?</h2>
+    <p class="hint" data-i18n="typeHint">Choisissez la catégorie de cacherout avant de voir les recettes possibles.</p>
+    <div class="type-choice">
+      <button class="type-btn" data-type="viande" type="button">
+        <span class="type-emoji">🥩</span><span class="type-name" data-i18n="typeViandeName">Bessari</span><span class="type-sub" data-i18n="typeViandeSub">(viande)</span>
+      </button>
+      <button class="type-btn" data-type="lait" type="button">
+        <span class="type-emoji">🥛</span><span class="type-name" data-i18n="typeLaitName">Halavi</span><span class="type-sub" data-i18n="typeLaitSub">(lait)</span>
+      </button>
+      <button class="type-btn" data-type="parve" type="button">
+        <span class="type-emoji">🌿</span><span class="type-name" data-i18n="typeParveName">Parve</span><span class="type-sub" data-i18n="typeParveSub">(neutre)</span>
+      </button>
+      <button class="type-btn active" data-type="tous" type="button">
+        <span class="type-emoji">🍽️</span><span class="type-name" data-i18n="typeTousName">Tous</span><span class="type-sub" data-i18n="typeTousSub">les types</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 3 : RÉSULTATS -->
+  <section class="card" id="section-results">
+    <h2 data-i18n="sectionResultsTitle">3. Recettes classiques</h2>
+    <p class="hint" data-i18n="resultsHint">Recettes rédigées, réalisables avec uniquement les ingrédients que vous avez cochés (aucun ingrédient manquant).</p>
+    <div id="results-empty" class="empty-state" data-i18n="resultsEmptyDefault">Sélectionnez vos ingrédients ci-dessus pour découvrir vos recettes.</div>
+    <div id="results-list"></div>
+  </section>
+
+  <section class="card" id="section-generated">
+    <h2 data-i18n="sectionGeneratedTitle">4. 💡 Idées rapides avec vos ingrédients</h2>
+    <p class="hint" data-i18n="generatedHint">Combinaisons générées à partir de ce que vous avez coché : une protéine seule, une protéine avec un ou plusieurs légumes, des légumes seuls ou en duo, etc. Recettes simples, à ajuster selon votre goût.</p>
+    <div id="generated-empty" class="empty-state" data-i18n="generatedEmptyDefault">Cochez des ingrédients pour voir apparaître des idées.</div>
+    <div id="generated-list"></div>
+  </section>
+
+</main>
+
+<div id="recipe-modal" class="modal hidden">
+  <div class="modal-content">
+    <button id="modal-close" class="modal-close" type="button">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footerText">Application 100% locale : vos ingrédients et vos photos restent sur votre téléphone.</p>
+</footer>
+
+<script src="data/ingredients.js"></script>
+<script src="data/recipes.js"></script>
+<script src="data/imagenet-map.js"></script>
+<script src="data/quick-ideas-defs.js"></script>
+<script src="data/i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
